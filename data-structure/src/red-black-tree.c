@@ -27,8 +27,8 @@ static void destroy_node(struct node *n);
 static int max(const int a, const int b);
 static int node_height(const struct node *n);
 
-int is_red(const struct node *n);
-int is_black(const struct node *n);
+static int is_red(const struct node *n);
+static int is_black(const struct node *n);
 
 static void node_rotate_left(struct red_black_tree *rb_tree, struct node *x);
 static void node_rotate_right(struct red_black_tree *rb_tree, struct node *x);
@@ -82,7 +82,7 @@ static void destroy_node(struct node *n)
 
 
 
-int is_red(const struct node *n)
+static int is_red(const struct node *n)
 {
     if (n == NULL)  /* NIL노드는 검은색이다. */
         return 0;
@@ -90,7 +90,7 @@ int is_red(const struct node *n)
     return n->color == COLOR_RED;
 }
 
-int is_black(const struct node *n)
+static int is_black(const struct node *n)
 {
     return !is_red(n);
 }
@@ -127,7 +127,7 @@ void destroy_red_black_tree(red_black_tree *rb_tree)
 
 int red_black_tree_empty(const red_black_tree *rb_tree)
 {
-    if (rb_tree == NULL)
+    if (rb_tree == NULL)    /* error: invalid arg */
         return -1;
 
     return rb_tree->count == 0;
@@ -135,7 +135,7 @@ int red_black_tree_empty(const red_black_tree *rb_tree)
 
 int red_black_tree_size(const red_black_tree *rb_tree)
 {
-    if (rb_tree == NULL)
+    if (rb_tree == NULL)    /* error: invalid arg */
         return -1;
 
     return rb_tree->count;

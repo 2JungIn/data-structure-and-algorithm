@@ -102,7 +102,7 @@ void destroy_avl_tree(avl_tree *avl_tree)
 
 int avl_tree_empty(const avl_tree *avl_tree)
 {
-    if (avl_tree == NULL)
+    if (avl_tree == NULL)   /* error: invalid arg */
         return -1;
 
     return avl_tree->count == 0;
@@ -110,7 +110,7 @@ int avl_tree_empty(const avl_tree *avl_tree)
 
 int avl_tree_size(const avl_tree *avl_tree)
 {
-    if (avl_tree == NULL)
+    if (avl_tree == NULL)   /* error: invalid arg */
         return -1;
 
     return avl_tree->count;
@@ -120,14 +120,14 @@ int avl_tree_size(const avl_tree *avl_tree)
 /* traversal */
 static void node_preorder(const struct node *n, void (*working)(void *))
 {
-    if (n != NULL)
-    {
-        if (working != NULL) 
-            working(n->item);
+    if (n == NULL)
+        return ;
 
-        node_preorder(n->left, working);
-        node_preorder(n->right, working);
-    }
+    if (working != NULL) 
+        working(n->item);
+
+    node_preorder(n->left, working);
+    node_preorder(n->right, working);
 }
 
 void avl_tree_preorder(const avl_tree *avl_tree, void (*working)(void *))
@@ -141,15 +141,15 @@ void avl_tree_preorder(const avl_tree *avl_tree, void (*working)(void *))
 
 static void node_inorder(const struct node *n, void (*working)(void *))
 {
-    if (n != NULL)
-    {
-        node_inorder(n->left, working);
+    if (n == NULL)
+        return ;
 
-        if (working != NULL) 
-            working(n->item);
+    node_inorder(n->left, working);
 
-        node_inorder(n->right, working);
-    }
+    if (working != NULL) 
+        working(n->item);
+
+    node_inorder(n->right, working);
 }
 
 void avl_tree_inorder(const avl_tree *avl_tree, void (*working)(void *))
@@ -163,14 +163,14 @@ void avl_tree_inorder(const avl_tree *avl_tree, void (*working)(void *))
 
 static void node_postorder(const struct node *n, void (*working)(void *))
 {
-    if (n != NULL)
-    {
-        node_postorder(n->left, working);
-        node_postorder(n->right, working);
+    if (n == NULL)
+        return ;
 
-        if (working != NULL) 
-            working(n->item);
-    }
+    node_postorder(n->left, working);
+    node_postorder(n->right, working);
+
+    if (working != NULL) 
+        working(n->item);
 }
 
 void avl_tree_postorder(const avl_tree *avl_tree, void (*working)(void *))
@@ -366,7 +366,7 @@ void avl_tree_clear(avl_tree *avl_tree)
 
 static struct node *node_min_item(struct node *n)
 {
-    if (n == NULL)   /* error: invalid arg */
+    if (n == NULL)  /* error: invalid arg */
         return NULL;
     
     return n->left == NULL ? n : node_min_item(n->left);

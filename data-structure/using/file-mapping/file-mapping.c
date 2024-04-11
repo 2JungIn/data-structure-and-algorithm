@@ -24,7 +24,6 @@ struct file
 };
 
 void unix_error(const char *msg);
-int compare(const char *str1, const char *str2);
 struct file *make_file(const char *file_name);
 void release_file(struct file *f);
 
@@ -38,13 +37,13 @@ map *init_file_map(const char *path)
         unix_error("chdir");
     
     map *file_map = init_map(
-        (int (*)(const void *, const void *))compare,
+        (int (*)(const void *, const void *))strcmp,
         free,
         (void (*)(void *))release_file);
 
     DIR *d = NULL;
 
-    if ((d = opendir("./")) == NULL)
+    if ((d = opendir(".")) == NULL)
         unix_error("opendir");
 
     for (struct dirent *e = readdir(d); e; e = readdir(d))
@@ -74,9 +73,15 @@ map *init_file_map(const char *path)
     return file_map;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    map *file_map = init_file_map("../../src");
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s <path>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    map *file_map = init_file_map(argv[1]);
     
     char *input = NULL;
     size_t size = BUFFER_SIZE;
@@ -91,27 +96,28 @@ int main(void)
             break;
         
         struct file *f = (struct file *)map_get_value(file_map, input);
-        if (f == NULL)
-            printf("\"%s\" is not found!\n", input);
-        else
+        if (f == NULL)  /* not found */
         {
-            const size_t file_size = f->file_size;
-            const char *mapped_addr = f->mapped_addr;
-
-            printf("\n[file name: \"%s\"\tfile size: %ld Byte]\n\n", input, file_size);
-
-            for (size_t i = 0; i < f->file_size; i++)
-                printf("%c", mapped_addr[i]);
-            
-            printf("\n\n");
+            printf("\"%s\" is not found!\n", input);
+            continue;
         }
+        
+        /* found */
+        const size_t file_size = f->file_size;
+        const char *mapped_addr = f->mapped_addr;
+
+        printf("\n[file name: \"%s\"\tfile size: %ld Byte]\n\n", input, file_size);
+
+        for (size_t i = 0; i < f->file_size; i++)
+            printf("%c", mapped_addr[i]);
+        
+        printf("\n\n");
     }
 
     free(input);
-
     destroy_map(file_map);
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -119,11 +125,6 @@ void unix_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
-}
-
-int compare(const char *str1, const char *str2)
-{
-    return strcmp(str1, str2);
 }
 
 struct file *make_file(const char *file_name)

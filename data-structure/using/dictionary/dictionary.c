@@ -19,18 +19,15 @@ char *make_string(const char *str);
 
 uint8_t *md5_string(const char *word);
 int hash_function(const char *word);
-int key_compare(const char *key1, const char *key2);
-void free_key(char *key);
-void free_value(char *value);
 
 hash_table *init_dictionary(const char *file)
 {
     hash_table *dictionary = init_hash_table(
         0,
         (int (*)(const void *))hash_function,
-        (int (*)(const void *, const void *))key_compare,
-        (void (*)(void *))free_key,
-        (void (*)(void *))free_value
+        (int (*)(const void *, const void *))strcmp,
+        free, 
+        free
     );
 
     FILE *fp = NULL;
@@ -134,18 +131,3 @@ int hash_function(const char *word)
     return (int)(ret_value & 0x7FFFFFFF);
 }
 
-
-int key_compare(const char *key1, const char *key2)
-{
-    return strcmp(key1, key2);
-}
-
-void free_key(char *key)
-{
-    free(key);
-}
-
-void free_value(char *value)
-{
-    free(value);
-}
